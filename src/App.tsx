@@ -1,11 +1,14 @@
+
 // src/App.tsx
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ResumeData, Skill, Experience } from "./types";
 import ResumeForm from "./components/ResumeForm";
 import ResumePreview from "./components/ResumePreview";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ConfirmModal from "./components/ConfirmModal";
+import ExportButton from "./components/ExportButton"; 
+
 import {
   validateResume,
   type PersonalErrors,
@@ -34,12 +37,11 @@ function App() {
   });
 
   const [personalErrors, setPersonalErrors] = useState<PersonalErrors>({});
-  const [experienceErrors, setExperienceErrors] = useState<ExperienceErrors>(
-    {}
-  );
+  const [experienceErrors, setExperienceErrors] = useState<ExperienceErrors>({});
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
   const [pending, setPending] = useState<PendingAction>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const handlePersonalInfoChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -175,7 +177,10 @@ function App() {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-lg overflow-y-auto flex flex-col">
-          <ResumePreview data={resumeData} />
+          <div className="flex justify-end mb-4">
+            <ExportButton /> 
+          </div>
+          <ResumePreview ref={previewRef} data={resumeData} />
         </div>
       </main>
 
@@ -195,3 +200,4 @@ function App() {
 }
 
 export default App;
+

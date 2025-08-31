@@ -86,3 +86,5 @@ const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps>(
 
 ResumePreview.displayName = "ResumePreview";
 export default ResumePreview;
+
+
