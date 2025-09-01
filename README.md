@@ -94,16 +94,6 @@ Layout **split-screen** otimizado para desktop:
 
 ------------------------------------------------------------------------
 
-## 📂 Estrutura de Pastas (sugerida)
-
-    src/
-     ├── components/   # Componentes reutilizáveis
-     ├── pages/        # Páginas principais
-     ├── styles/       # Estilos e configuração do Tailwind
-     ├── App.tsx       # Estrutura base da aplicação
-     └── main.tsx      # Ponto de entrada do React
-
-------------------------------------------------------------------------
 
 ## 🖼️ Preview do Projeto
 
