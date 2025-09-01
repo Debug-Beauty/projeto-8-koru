@@ -1,69 +1,113 @@
-# React + TypeScript + Vite
+# 📄 Gerador de Currículo Inteligente
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Uma aplicação **React moderna** que permite criar currículos
+profissionais com **preview em tempo real**.\
+Este projeto foca em conceitos avançados de **React** e **TailwindCSS**,
+com arquitetura escalável e design clean.
 
-Currently, two official plugins are available:
+------------------------------------------------------------------------
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Tecnologias Utilizadas
 
-## Expanding the ESLint configuration
+-   **React 19**
+-   **TypeScript**
+-   **Vite**
+-   **TailwindCSS v4**
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+------------------------------------------------------------------------
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🎯 Conceito da Aplicação
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+Layout **split-screen** otimizado para desktop:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+-   **Esquerda (50%)** → Formulário de entrada de dados\
+-   **Direita (50%)** → Preview instantâneo do currículo\
+-   **Foco**: produtividade e experiência desktop (não responsivo para
+    mobile)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+------------------------------------------------------------------------
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📝 Funcionalidades
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+-   Preview **instantâneo** ao digitar\
+-   **Listas dinâmicas** para adicionar/remover habilidades e
+    experiências\
+-   Layout desktop moderno e fixo\
+-   Validação em tempo real nos formulários\
+-   Indicação visual de campos obrigatórios ou vazios
+
+------------------------------------------------------------------------
+
+## 📌 Estrutura do Formulário
+
+1.  **Dados Pessoais**
+    -   Nome, Email, Telefone, LinkedIn\
+    -   Resumo profissional (com contador de caracteres)
+2.  **Habilidades**
+    -   Adição/remoção dinâmica\
+    -   Nível de proficiência (Básico / Intermediário / Avançado)
+3.  **Experiências**
+    -   Empresa, Cargo, Período, Descrição\
+    -   Checkbox "Trabalho atual"\
+    -   Validação de datas
+
+------------------------------------------------------------------------
+
+## 🧩 Conceitos React Praticados
+
+-   **Estado compartilhado avançado**\
+-   **Componentes controlados** (inputs, textareas, listas)\
+-   **Props e Lifting State Up** (comunicação entre componentes)\
+-   **Renderização condicional avançada**
+
+------------------------------------------------------------------------
+
+## ⚡ Como Rodar o Projeto
+
+1.  Clone este repositório:
+
+    ``` bash
+    git clone https://github.com/seu-usuario/gerador-curriculo-inteligente.git
+    ```
+
+2.  Entre na pasta do projeto:
+
+    ``` bash
+    cd gerador-curriculo-inteligente
+    ```
+
+3.  Instale as dependências:
+
+    ``` bash
+    npm install
+    ```
+
+4.  Rode o servidor de desenvolvimento:
+
+    ``` bash
+    npm run dev
+    ```
+
+5.  Abra no navegador:
+
+        http://localhost:5173
+
+------------------------------------------------------------------------
+
+## 📂 Estrutura de Pastas (sugerida)
+
+    src/
+     ├── components/   # Componentes reutilizáveis
+     ├── pages/        # Páginas principais
+     ├── styles/       # Estilos e configuração do Tailwind
+     ├── App.tsx       # Estrutura base da aplicação
+     └── main.tsx      # Ponto de entrada do React
+
+------------------------------------------------------------------------
+
+## 🖼️ Preview do Projeto
+
+![Preview do Projeto](src/assets/preview.png)
+
+
+------------------------------------------------------------------------
