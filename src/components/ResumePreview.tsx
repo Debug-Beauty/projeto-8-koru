@@ -1,6 +1,8 @@
 // src/components/ResumePreview.tsx
 import React from "react";
 import type { ResumeData } from "../types";
+import { improveText } from "../services/ai";
+
 
 type ResumePreviewProps = { data: ResumeData };
 

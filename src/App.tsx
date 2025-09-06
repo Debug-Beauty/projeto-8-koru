@@ -1,13 +1,12 @@
-
 // src/App.tsx
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import type { ResumeData, Skill, Experience } from "./types";
 import ResumeForm from "./components/ResumeForm";
 import ResumePreview from "./components/ResumePreview";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ConfirmModal from "./components/ConfirmModal";
-import ExportButton from "./components/ExportButton"; 
+import ExportButton from "./components/ExportButton";
 
 import {
   validateResume,
@@ -42,6 +41,19 @@ function App() {
   const [confirmMessage, setConfirmMessage] = useState("");
   const [pending, setPending] = useState<PendingAction>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // 🔹 API Key
+  const [apiKey, setApiKey] = useState("");
+  useEffect(() => {
+    const saved = localStorage.getItem("gemini_api_key");
+    if (saved) setApiKey(saved);
+  }, []);
+
+  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const key = e.target.value;
+    setApiKey(key);
+    localStorage.setItem("gemini_api_key", key);
+  };
 
   const handlePersonalInfoChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -153,6 +165,18 @@ function App() {
 
       <main className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-8 p-8 max-w-7xl mx-auto w-full">
         <div className="bg-white p-6 rounded-lg shadow-lg overflow-y-auto flex flex-col">
+          {/* Campo da API Key */}
+          <div className="mb-4">
+            <label className="block font-semibold mb-1">API do Google Gemini:</label>
+            <input
+              type="password"
+              value={apiKey}
+              onChange={handleApiKeyChange}
+              className="w-full p-2 border rounded bg-gray-100"
+              placeholder="Cole sua API Key aqui..."
+            />
+          </div>
+
           {/* Ações globais */}
           <div className="flex gap-3 mb-4">
             <button
@@ -173,12 +197,13 @@ function App() {
             onExperienceChange={handleExperienceChange}
             personalErrors={personalErrors}
             experienceErrors={experienceErrors}
+            apiKey={apiKey} 
           />
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-lg overflow-y-auto flex flex-col">
           <div className="flex justify-end mb-4">
-            <ExportButton /> 
+            <ExportButton />
           </div>
           <ResumePreview ref={previewRef} data={resumeData} />
         </div>
@@ -200,3 +225,4 @@ function App() {
 }
 
 export default App;
+

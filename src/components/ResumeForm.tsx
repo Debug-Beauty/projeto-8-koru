@@ -1,8 +1,11 @@
+// src/components/ResumeForm.tsx
 import { useState } from "react";
 import type { PersonalInfo, ResumeData, Skill, Experience } from "../types";
 import Input from "./ui/Input";
 import Textarea from "./ui/Textarea";
 import Button from "./ui/Button";
+import AiButton from "./ui/AiButton";
+import { improveText } from "../services/ai";
 import type { PersonalErrors, ExperienceErrors } from "../hooks/useValidation";
 
 // Props para o formulário de currículo
@@ -20,9 +23,11 @@ interface ResumeFormProps {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
 
-  // NOVO: mapas de erro
   personalErrors: PersonalErrors;
   experienceErrors: ExperienceErrors;
+
+  // 🔹 Nova prop: API Key
+  apiKey: string;
 }
 
 /* =======================
@@ -32,12 +37,14 @@ const PersonalInfoForm = ({
   data,
   onPersonalInfoChange,
   personalErrors,
+  apiKey,
 }: {
   data: PersonalInfo;
   onPersonalInfoChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   personalErrors: PersonalErrors;
+  apiKey: string;
 }) => {
   const summaryMaxLength = 500;
 
@@ -46,6 +53,7 @@ const PersonalInfoForm = ({
       <h2 className="text-2xl font-bold mb-4 border-b pb-2">Dados Pessoais</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Inputs comuns */}
         <div>
           <Input
             type="text"
@@ -110,6 +118,7 @@ const PersonalInfoForm = ({
         </div>
       </div>
 
+      {/* Resumo Profissional */}
       <div className="mt-4">
         <Textarea
           name="summary"
@@ -121,6 +130,22 @@ const PersonalInfoForm = ({
         />
         <div className="text-right text-xs text-gray-500 mt-1">
           {data.summary.length}/{summaryMaxLength}
+        </div>
+
+        {/* Botão IA */}
+        <div className="flex justify-end mt-2">
+          <AiButton
+            onClick={async () => {
+              const newText = await improveText(
+                apiKey,
+                "Melhore este resumo profissional, corrigindo erros e deixando-o mais impactante e objetivo.",
+                data.summary
+              );
+              onPersonalInfoChange({
+                target: { name: "summary", value: newText } as any,
+              } as React.ChangeEvent<HTMLTextAreaElement>);
+            }}
+          />
         </div>
       </div>
     </section>
@@ -215,6 +240,7 @@ const ExperienceForm = ({
   onRemoveExperience,
   onExperienceChange,
   experienceErrors,
+  apiKey,
 }: {
   experiences: Experience[];
   onAddExperience: () => void;
@@ -224,6 +250,7 @@ const ExperienceForm = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   experienceErrors: ExperienceErrors;
+  apiKey: string;
 }) => {
   return (
     <section>
@@ -244,6 +271,7 @@ const ExperienceForm = ({
               key={exp.id}
               className="bg-gray-50 p-4 rounded-md border relative"
             >
+              {/* Botão remover */}
               <div className="absolute right-3 top-3">
                 <Button
                   type="button"
@@ -256,6 +284,7 @@ const ExperienceForm = ({
                 </Button>
               </div>
 
+              {/* Campos */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Input
@@ -327,6 +356,7 @@ const ExperienceForm = ({
                 </div>
               </div>
 
+              {/* Descrição + IA */}
               <div className="mt-4">
                 <Textarea
                   name="description"
@@ -335,8 +365,24 @@ const ExperienceForm = ({
                   placeholder="Descrição das atividades"
                   className="h-28"
                 />
+
+                <div className="flex justify-end mt-2">
+                  <AiButton
+                    onClick={async () => {
+                      const newText = await improveText(
+                        apiKey,
+                        "Melhore a descrição da experiência profissional, usando verbos de ação, corrigindo erros e deixando o texto mais impactante.",
+                        exp.description
+                      );
+                      onExperienceChange(exp.id, {
+                        target: { name: "description", value: newText } as any,
+                      } as React.ChangeEvent<HTMLTextAreaElement>);
+                    }}
+                  />
+                </div>
               </div>
 
+              {/* Checkbox */}
               <div className="mt-2 flex items-center">
                 <input
                   type="checkbox"
@@ -369,6 +415,7 @@ const ResumeForm = ({
   onExperienceChange,
   personalErrors,
   experienceErrors,
+  apiKey,
 }: ResumeFormProps) => {
   return (
     <form className="space-y-8 flex-grow" noValidate>
@@ -376,6 +423,7 @@ const ResumeForm = ({
         data={data.personalInfo}
         onPersonalInfoChange={onPersonalInfoChange}
         personalErrors={personalErrors}
+        apiKey={apiKey}
       />
       <SkillsForm
         skills={data.skills}
@@ -388,6 +436,7 @@ const ResumeForm = ({
         onRemoveExperience={onRemoveExperience}
         onExperienceChange={onExperienceChange}
         experienceErrors={experienceErrors}
+        apiKey={apiKey}
       />
     </form>
   );
