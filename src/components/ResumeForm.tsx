@@ -1,5 +1,4 @@
-// src/components/ResumeForm.tsx
-import { useState } from "react";
+import React, { useState } from "react";
 import type { PersonalInfo, ResumeData, Skill, Experience } from "../types";
 import Input from "./ui/Input";
 import Textarea from "./ui/Textarea";
@@ -7,8 +6,47 @@ import Button from "./ui/Button";
 import AiButton from "./ui/AiButton";
 import { improveText } from "../services/ai";
 import type { PersonalErrors, ExperienceErrors } from "../hooks/useValidation";
+import SuggestionsModal from "./SuggestionsModal";
+import { Sparkles } from "lucide-react";
 
-// Props para o formulário de currículo
+// Props dos Subcomponentes
+interface PersonalInfoFormProps {
+  data: PersonalInfo;
+  onPersonalInfoChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  personalErrors: PersonalErrors;
+  onImproveClick: (
+    field: "summary",
+    text: string,
+    id?: undefined
+  ) => Promise<void>;
+  isLoading: boolean;
+}
+
+interface SkillsFormProps {
+  skills: Skill[];
+  onAddSkill: (skill: Omit<Skill, "id">) => void;
+  onRemoveSkill: (id: string) => void;
+}
+
+interface ExperienceFormProps {
+  experiences: Experience[];
+  onAddExperience: () => void;
+  onRemoveExperience: (id: string) => void;
+  onExperienceChange: (
+    id: string,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  experienceErrors: ExperienceErrors;
+  onImproveClick: (
+    field: "description",
+    text: string,
+    id: string
+  ) => Promise<void>;
+  loadingExperienceId: string | null;
+}
+
 interface ResumeFormProps {
   data: ResumeData;
   onPersonalInfoChange: (
@@ -22,38 +60,25 @@ interface ResumeFormProps {
     id: string,
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
-
   personalErrors: PersonalErrors;
   experienceErrors: ExperienceErrors;
-
-  // 🔹 Nova prop: API Key
   apiKey: string;
 }
 
-/* =======================
-   Formulário: Dados Pessoais
-======================= */
-const PersonalInfoForm = ({
+// Dados Pessoais
+const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
   data,
   onPersonalInfoChange,
   personalErrors,
-  apiKey,
-}: {
-  data: PersonalInfo;
-  onPersonalInfoChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
-  personalErrors: PersonalErrors;
-  apiKey: string;
+  onImproveClick,
+  isLoading,
 }) => {
   const summaryMaxLength = 500;
 
   return (
     <section>
       <h2 className="text-2xl font-bold mb-4 border-b pb-2">Dados Pessoais</h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Inputs comuns */}
         <div>
           <Input
             type="text"
@@ -68,7 +93,6 @@ const PersonalInfoForm = ({
             <p className="mt-1 text-sm text-red-600">{personalErrors.name}</p>
           )}
         </div>
-
         <div>
           <Input
             type="email"
@@ -83,7 +107,6 @@ const PersonalInfoForm = ({
             <p className="mt-1 text-sm text-red-600">{personalErrors.email}</p>
           )}
         </div>
-
         <div>
           <Input
             type="tel"
@@ -99,7 +122,6 @@ const PersonalInfoForm = ({
             <p className="mt-1 text-sm text-red-600">{personalErrors.phone}</p>
           )}
         </div>
-
         <div>
           <Input
             type="url"
@@ -117,8 +139,6 @@ const PersonalInfoForm = ({
           )}
         </div>
       </div>
-
-      {/* Resumo Profissional */}
       <div className="mt-4">
         <Textarea
           name="summary"
@@ -131,38 +151,35 @@ const PersonalInfoForm = ({
         <div className="text-right text-xs text-gray-500 mt-1">
           {data.summary.length}/{summaryMaxLength}
         </div>
-
-        {/* Botão IA */}
         <div className="flex justify-end mt-2">
           <AiButton
-            onClick={async () => {
-              const newText = await improveText(
-                apiKey,
-                "Melhore este resumo profissional, corrigindo erros e deixando-o mais impactante e objetivo.",
-                data.summary
-              );
-              onPersonalInfoChange({
-                target: { name: "summary", value: newText } as any,
-              } as React.ChangeEvent<HTMLTextAreaElement>);
-            }}
-          />
+            onClick={() => onImproveClick("summary", data.summary)}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                <Sparkles size={16} />
+                <span>Processando...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={16} />
+                <span>Melhorar com IA</span>
+              </>
+            )}
+          </AiButton>
         </div>
       </div>
     </section>
   );
 };
 
-/* =======================
-   Formulário: Habilidades
-======================= */
-const SkillsForm = ({
+// Habilidades
+const SkillsForm: React.FC<SkillsFormProps> = ({
   skills,
   onAddSkill,
   onRemoveSkill,
-}: {
-  skills: Skill[];
-  onAddSkill: (skill: Omit<Skill, "id">) => void;
-  onRemoveSkill: (id: string) => void;
 }) => {
   const [newSkill, setNewSkill] = useState<{
     name: string;
@@ -179,7 +196,6 @@ const SkillsForm = ({
   return (
     <section>
       <h2 className="text-2xl font-bold mb-4 border-b pb-2">Habilidades</h2>
-
       <div className="flex items-center gap-2 mb-4">
         <Input
           type="text"
@@ -206,7 +222,6 @@ const SkillsForm = ({
           Adicionar
         </Button>
       </div>
-
       <ul className="space-y-2">
         {skills.map((skill) => (
           <li
@@ -231,26 +246,15 @@ const SkillsForm = ({
   );
 };
 
-/* =======================
-   Formulário: Experiências
-======================= */
-const ExperienceForm = ({
+// Experiências
+const ExperienceForm: React.FC<ExperienceFormProps> = ({
   experiences,
   onAddExperience,
   onRemoveExperience,
   onExperienceChange,
   experienceErrors,
-  apiKey,
-}: {
-  experiences: Experience[];
-  onAddExperience: () => void;
-  onRemoveExperience: (id: string) => void;
-  onExperienceChange: (
-    id: string,
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
-  experienceErrors: ExperienceErrors;
-  apiKey: string;
+  onImproveClick,
+  loadingExperienceId,
 }) => {
   return (
     <section>
@@ -260,18 +264,17 @@ const ExperienceForm = ({
           Adicionar Experiência
         </Button>
       </div>
-
       <div className="space-y-6">
         {experiences.map((exp) => {
           const errs = experienceErrors[exp.id] || {};
           const isCurrent = !!exp.isCurrent;
+          const isCurrentLoading = loadingExperienceId === exp.id;
 
           return (
             <div
               key={exp.id}
               className="bg-gray-50 p-4 rounded-md border relative"
             >
-              {/* Botão remover */}
               <div className="absolute right-3 top-3">
                 <Button
                   type="button"
@@ -283,8 +286,6 @@ const ExperienceForm = ({
                   &times;
                 </Button>
               </div>
-
-              {/* Campos */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Input
@@ -300,7 +301,6 @@ const ExperienceForm = ({
                     <p className="mt-1 text-sm text-red-600">{errs.role}</p>
                   )}
                 </div>
-
                 <div>
                   <Input
                     type="text"
@@ -315,7 +315,6 @@ const ExperienceForm = ({
                     <p className="mt-1 text-sm text-red-600">{errs.company}</p>
                   )}
                 </div>
-
                 <div>
                   <Input
                     type="text"
@@ -333,7 +332,6 @@ const ExperienceForm = ({
                     </p>
                   )}
                 </div>
-
                 <div>
                   <Input
                     type="text"
@@ -355,8 +353,6 @@ const ExperienceForm = ({
                   )}
                 </div>
               </div>
-
-              {/* Descrição + IA */}
               <div className="mt-4">
                 <Textarea
                   name="description"
@@ -365,24 +361,28 @@ const ExperienceForm = ({
                   placeholder="Descrição das atividades"
                   className="h-28"
                 />
-
                 <div className="flex justify-end mt-2">
                   <AiButton
-                    onClick={async () => {
-                      const newText = await improveText(
-                        apiKey,
-                        "Melhore a descrição da experiência profissional, usando verbos de ação, corrigindo erros e deixando o texto mais impactante.",
-                        exp.description
-                      );
-                      onExperienceChange(exp.id, {
-                        target: { name: "description", value: newText } as any,
-                      } as React.ChangeEvent<HTMLTextAreaElement>);
-                    }}
-                  />
+                    onClick={() =>
+                      onImproveClick("description", exp.description, exp.id)
+                    }
+                    disabled={!!loadingExperienceId}
+                  >
+                    {isCurrentLoading ? (
+                      <>
+                        <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                        <Sparkles size={16} />
+                        <span>Processando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} />
+                        <span>Melhorar com IA</span>
+                      </>
+                    )}
+                  </AiButton>
                 </div>
               </div>
-
-              {/* Checkbox */}
               <div className="mt-2 flex items-center">
                 <input
                   type="checkbox"
@@ -402,10 +402,8 @@ const ExperienceForm = ({
   );
 };
 
-/* =======================
-   Componente principal
-======================= */
-const ResumeForm = ({
+// Componente Principal
+const ResumeForm: React.FC<ResumeFormProps> = ({
   data,
   onPersonalInfoChange,
   onAddSkill,
@@ -416,30 +414,103 @@ const ResumeForm = ({
   personalErrors,
   experienceErrors,
   apiKey,
-}: ResumeFormProps) => {
+}) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [modalTarget, setModalTarget] = useState<{
+    field: "summary" | "description";
+    id?: string;
+  } | null>(null);
+
+  const handleImproveClick = async (
+    field: "summary" | "description",
+    text: string,
+    id?: string
+  ) => {
+    setModalTarget({ field, id });
+    setIsLoading(true);
+    setSuggestions([]);
+    setIsModalOpen(true);
+
+    try {
+      const prompt =
+        field === "summary"
+          ? "Aja como um recrutador experiente. Melhore o seguinte resumo profissional para um currículo. Mantenha um tom profissional e incorpore palavras-chave relevantes para a área de atuação. O foco principal é corrigir erros de gramática e ortografia, melhorar a fluência e otimizar o texto para ter o máximo de impacto e densidade de informação."
+          : "Aja como um recrutador experiente. Melhore a seguinte descrição de experiência profissional para um currículo. Use verbos de ação fortes no início das frases e quantifique os resultados e responsabilidades sempre que possível (por exemplo, 'aumentou as vendas em 20%', 'gerenciou uma equipe de 5 pessoas'). O foco principal é corrigir erros de gramática e ortografia, melhorar a fluência e otimizar o texto para ter o máximo de impacto e densidade de informação.";
+      
+      const minDelay = new Promise(resolve => setTimeout(resolve, 1000));
+      const improvePromise = improveText(apiKey, prompt, text);
+
+      const [result] = await Promise.all([improvePromise, minDelay]);
+
+      setSuggestions(result.suggestions);
+    } catch (error) {
+      console.error("Falha ao buscar sugestões da IA:", error);
+      setSuggestions(["Houve um erro ao buscar sugestões. Tente novamente."]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSelectSuggestion = (selectedText: string) => {
+    if (!modalTarget) return;
+
+    if (modalTarget.field === "summary") {
+      onPersonalInfoChange({
+        target: { name: "summary", value: selectedText },
+      } as React.ChangeEvent<HTMLTextAreaElement>);
+    } else if (modalTarget.field === "description" && modalTarget.id) {
+      onExperienceChange(modalTarget.id, {
+        target: { name: "description", value: selectedText },
+      } as React.ChangeEvent<HTMLTextAreaElement>);
+    }
+
+    setIsModalOpen(false);
+    setModalTarget(null);
+  };
+
   return (
-    <form className="space-y-8 flex-grow" noValidate>
-      <PersonalInfoForm
-        data={data.personalInfo}
-        onPersonalInfoChange={onPersonalInfoChange}
-        personalErrors={personalErrors}
-        apiKey={apiKey}
+    <>
+      <SuggestionsModal
+        open={isModalOpen}
+        title="Sugestões da IA"
+        isLoading={isLoading}
+        suggestions={suggestions}
+        onClose={() => setIsModalOpen(false)}
+        onSelect={handleSelectSuggestion}
       />
-      <SkillsForm
-        skills={data.skills}
-        onAddSkill={onAddSkill}
-        onRemoveSkill={onRemoveSkill}
-      />
-      <ExperienceForm
-        experiences={data.experiences}
-        onAddExperience={onAddExperience}
-        onRemoveExperience={onRemoveExperience}
-        onExperienceChange={onExperienceChange}
-        experienceErrors={experienceErrors}
-        apiKey={apiKey}
-      />
-    </form>
+
+      <form className="space-y-8 flex-grow" noValidate>
+        <PersonalInfoForm
+          data={data.personalInfo}
+          onPersonalInfoChange={onPersonalInfoChange}
+          personalErrors={personalErrors}
+          onImproveClick={handleImproveClick}
+          isLoading={isLoading && modalTarget?.field === "summary"}
+        />
+        <SkillsForm
+          skills={data.skills}
+          onAddSkill={onAddSkill}
+          onRemoveSkill={onRemoveSkill}
+        />
+        <ExperienceForm
+          experiences={data.experiences}
+          onAddExperience={onAddExperience}
+          onRemoveExperience={onRemoveExperience}
+          onExperienceChange={onExperienceChange}
+          experienceErrors={experienceErrors}
+          onImproveClick={handleImproveClick}
+          loadingExperienceId={
+            isLoading && modalTarget?.field === "description"
+              ? modalTarget.id ?? null
+              : null
+          }
+        />
+      </form>
+    </>
   );
 };
 
 export default ResumeForm;
+

@@ -1,5 +1,5 @@
-// src/App.tsx
 import { useRef, useState, useEffect } from "react";
+import useLocalStorage from "./hooks/useLocalStorage"; 
 import type { ResumeData, Skill, Experience } from "./types";
 import ResumeForm from "./components/ResumeForm";
 import ResumePreview from "./components/ResumePreview";
@@ -19,21 +19,24 @@ type PendingAction =
   | { type: "remove-exp"; id: string }
   | null;
 
-// UUID com fallback (sem any)
 const uuid = (): string => {
-  const c = globalThis.crypto as Crypto | undefined;
-  if (c && "randomUUID" in c) {
-    return (c as Crypto & { randomUUID: () => string }).randomUUID();
+  if (globalThis.crypto && "randomUUID" in globalThis.crypto) {
+    return (globalThis.crypto as any).randomUUID();
   }
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
-function App() {
-  const [resumeData, setResumeData] = useState<ResumeData>({
-    personalInfo: { name: "", email: "", phone: "", linkedin: "", summary: "" },
-    skills: [],
-    experiences: [],
-  });
+const initialData: ResumeData = {
+  personalInfo: { name: "", email: "", phone: "", linkedin: "", summary: "" },
+  skills: [],
+  experiences: [],
+};
+
+function App() {  
+  const [resumeData, setResumeData] = useLocalStorage<ResumeData>(
+    "resume-form-data", // Chave de identificação no localStorage
+    initialData
+  );
 
   const [personalErrors, setPersonalErrors] = useState<PersonalErrors>({});
   const [experienceErrors, setExperienceErrors] = useState<ExperienceErrors>({});
@@ -42,7 +45,6 @@ function App() {
   const [pending, setPending] = useState<PendingAction>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // 🔹 API Key
   const [apiKey, setApiKey] = useState("");
   useEffect(() => {
     const saved = localStorage.getItem("gemini_api_key");
@@ -118,12 +120,11 @@ function App() {
     id: string,
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const target = e.target as HTMLInputElement | HTMLTextAreaElement;
-    const name = target.name as keyof Experience;
-    const value =
-      target instanceof HTMLInputElement && target.type === "checkbox"
-        ? (target.checked as Experience[keyof Experience])
-        : (target.value as Experience[keyof Experience]);
+    const target = e.target;
+    const name = target.name;
+    const value = target.type === "checkbox" && target instanceof HTMLInputElement
+        ? target.checked
+        : target.value;
 
     setResumeData((prev) => ({
       ...prev,
@@ -133,7 +134,6 @@ function App() {
     }));
   };
 
-  // valida e atualiza os erros
   const runValidation = (): boolean => {
     const res = validateResume(resumeData);
     setPersonalErrors(res.personal);
@@ -165,7 +165,6 @@ function App() {
 
       <main className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-8 p-8 max-w-7xl mx-auto w-full">
         <div className="bg-white p-6 rounded-lg shadow-lg overflow-y-auto flex flex-col">
-          {/* Campo da API Key */}
           <div className="mb-4">
             <label className="block font-semibold mb-1">API do Google Gemini:</label>
             <input
@@ -177,7 +176,6 @@ function App() {
             />
           </div>
 
-          {/* Ações globais */}
           <div className="flex gap-3 mb-4">
             <button
               className="px-4 py-2 rounded-lg bg-blue-600 text-white"
@@ -197,7 +195,7 @@ function App() {
             onExperienceChange={handleExperienceChange}
             personalErrors={personalErrors}
             experienceErrors={experienceErrors}
-            apiKey={apiKey} 
+            apiKey={apiKey}
           />
         </div>
 

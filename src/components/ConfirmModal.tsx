@@ -8,6 +8,7 @@ interface ConfirmModalProps {
   cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  isLoading?: boolean; 
 }
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -18,17 +19,18 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   cancelText = "Cancelar",
   onConfirm,
   onCancel,
+  isLoading = false,
 }) => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCancel();
+      if (e.key === "Escape" && !isLoading) onCancel();
     };
     if (open) window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onCancel]);
+  }, [open, onCancel, isLoading]);
 
   const onBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) onCancel();
+    if (e.target === e.currentTarget && !isLoading) onCancel();
   };
 
   if (!open) return null;
@@ -39,31 +41,26 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       onMouseDown={onBackdrop}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="confirm-title"
-      aria-describedby="confirm-desc"
     >
       <div className="bg-white w-[min(92vw,460px)] rounded-xl shadow-xl p-6 relative">
-        <h3 id="confirm-title" className="text-xl font-semibold mb-2">
-          {title}
-        </h3>
-        <p id="confirm-desc" className="text-gray-600">
-          {description}
-        </p>
-
+        <h3 className="text-xl font-semibold mb-2">{title}</h3>
+        <p className="text-gray-600">{description}</p>
         <div className="mt-6 flex gap-3 justify-end">
           <button
             type="button"
-            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             onClick={onCancel}
+            disabled={isLoading}
           >
             {cancelText}
           </button>
           <button
             type="button"
-            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400 min-w-[110px]"
             onClick={onConfirm}
+            disabled={isLoading}
           >
-            {confirmText}
+            {confirmText} 
           </button>
         </div>
       </div>
