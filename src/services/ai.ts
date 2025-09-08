@@ -8,7 +8,7 @@ export async function improveText(apiKey: string, prompt: string, text: string):
       throw new Error("API Key não fornecida. Cole sua chave do Gemini.");
     }
 
-    const fullPrompt = `${prompt}\n\nAnalise o texto abaixo e forneça 3 opções de melhoria. Retorne sua resposta como um objeto JSON com uma única chave "suggestions", que contém um array de strings. Exemplo: {"suggestions": ["Opção 1", "Opção 2", "Opção 3"]}\n\nTexto: ${text}`;
+    const fullPrompt = `${prompt}\n\nAnalise o texto abaixo e forneça 3 opções de melhoria em português do Brasil. As opções devem ser claras, objetivas e com tom profissional. Retorne sua resposta como um objeto JSON com uma única chave "suggestions", que contém um array de strings. Exemplo: {"suggestions": ["Opção 1", "Opção 2", "Opção 3"]}\n\nTexto: ${text}`;
 
     const response = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?alt=json",
